@@ -1,10 +1,3 @@
-//
-//  AppDelegate.swift
-//  ImageFeed
-//
-//  Created by Илья Лобастов on 15.02.2026.
-//
-
 import UIKit
 
 @main
