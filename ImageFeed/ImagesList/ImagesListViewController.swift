@@ -37,21 +37,21 @@ final class ImagesListViewController: UIViewController {
         cell.likeButton.setImage(likeImage, for: .normal)
     }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-            if segue.identifier == showSingleImageSegueIdentifier { // 1
-                guard
-                    let viewController = segue.destination as? SingleImageViewController, // 2
-                    let indexPath = sender as? IndexPath // 3
-                else {
-                    assertionFailure("Invalid segue destination") // 4
-                    return
-                }
-
-                let image = UIImage(named: photosName[indexPath.row])// 5
-                viewController.image = image // 6
-            } else {
-                super.prepare(for: segue, sender: sender) // 7
+        if segue.identifier == showSingleImageSegueIdentifier { // 1
+            guard
+                let viewController = segue.destination as? SingleImageViewController, // 2
+                let indexPath = sender as? IndexPath // 3
+            else {
+                assertionFailure("Invalid segue destination") // 4
+                return
             }
+            
+            let image = UIImage(named: photosName[indexPath.row])// 5
+            viewController.image = image // 6
+        } else {
+            super.prepare(for: segue, sender: sender) // 7
         }
+    }
 }
 
 // MARK: - UITableViewDelegate
