@@ -26,7 +26,7 @@
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" name="YP Black"/>
+                        <color key="backgroundColor" name="ypBlack"/>
                         <constraints>
                             <constraint firstItem="d9K-94-avq" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="w9T-of-dy8"/>
                             <constraint firstItem="d9K-94-avq" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="z2l-ih-z5H"/>
@@ -40,7 +40,7 @@
     </scenes>
     <resources>
         <image name="splash_screen_logo" width="75" height="78"/>
-        <namedColor name="YP Black">
+        <namedColor name="ypBlack">
             <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
