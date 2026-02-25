@@ -23,6 +23,8 @@ extension URLSession {
                 if 200 ..< 300 ~= statusCode {
                     fulfillCompletionOnTheMainThread(.success(data)) // 3
                 } else {
+                    print("❌ Status code:", statusCode)
+                    print("❌ Response body:", String(data: data, encoding: .utf8) ?? "No body")
                     fulfillCompletionOnTheMainThread(.failure(NetworkError.httpStatusCode(statusCode))) // 4
                 }
             } else if let error = error {

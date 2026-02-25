@@ -33,7 +33,7 @@ final class OAuth2Service{
     }
     
     func fetchOAuthToken(
-        code: String,
+        _ code: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
         guard let request = makeOAuthTokenRequest(code: code) else {

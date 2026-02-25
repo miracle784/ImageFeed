@@ -57,6 +57,7 @@ final class WebViewViewController: UIViewController{
     }
     
     private func loadAuthView() {
+        
         guard var urlComponents = URLComponents(string: WebViewConstants.unsplashAuthorizeURLString) else {
             return
         }
@@ -72,7 +73,7 @@ final class WebViewViewController: UIViewController{
             return
             
         }
-       
+        
         let request = URLRequest(url: url)
           webView.load(request)
         
