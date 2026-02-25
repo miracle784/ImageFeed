@@ -24,14 +24,14 @@ final class WebViewViewController: UIViewController{
     }
     
     override func viewDidAppear(_ animated: Bool) {
-            super.viewDidAppear(animated)
-            webView.addObserver(
-                self,
-                forKeyPath: #keyPath(WKWebView.estimatedProgress),
-                options: .new,
-                context: nil)
-            updateProgress()
-        }
+        super.viewDidAppear(animated)
+        webView.addObserver(
+            self,
+            forKeyPath: #keyPath(WKWebView.estimatedProgress),
+            options: .new,
+            context: nil)
+        updateProgress()
+    }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -50,7 +50,7 @@ final class WebViewViewController: UIViewController{
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
     }
-
+    
     private func updateProgress() {
         progressView.progress = Float(webView.estimatedProgress)
         progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
@@ -75,10 +75,9 @@ final class WebViewViewController: UIViewController{
         }
         
         let request = URLRequest(url: url)
-          webView.load(request)
+        webView.load(request)
         
     }
-    
 }
 extension WebViewViewController: WKNavigationDelegate{
     func webView(
@@ -86,13 +85,13 @@ extension WebViewViewController: WKNavigationDelegate{
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
-          if let code = code(from: navigationAction) { //1
-              delegate?.webViewViewController(self, didAuthenticateWithCode: code)                    //2
-              decisionHandler(.cancel)                 //3
-          } else {
-              decisionHandler(.allow)                  //4
-          }
-      }
+        if let code = code(from: navigationAction) { //1
+            delegate?.webViewViewController(self, didAuthenticateWithCode: code)                    //2
+            decisionHandler(.cancel)                 //3
+        } else {
+            decisionHandler(.allow)                  //4
+        }
+    }
     
     private func code(from navigationAction: WKNavigationAction) -> String? {
         if

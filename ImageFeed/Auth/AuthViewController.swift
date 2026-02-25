@@ -33,37 +33,34 @@ final class AuthViewController: UIViewController{
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem?.tintColor = UIColor(named: "ypBlack")
     }
-    
 }
 
 extension AuthViewController: WebViewViewControllerDelegate{
     
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-            
-
+        
+        
         oauth2Service.fetchOAuthToken(code) { [weak self] result in
-                guard let self = self else { return }
-
-                switch result {
-
-                case .success:
-                    print("✅ Авторизация успешна")
-                    vc.dismiss(animated: true){
-                        self.delegate?.didAuthenticate(self)
-                    }
-
-                case .failure(let error):
-                    print("❌ Ошибка авторизации:", error)
-                    // остаёмся на AuthViewController
+            guard let self = self else { return }
+            
+            switch result {
+                
+            case .success:
+                print("✅ Авторизация успешна")
+                vc.dismiss(animated: true){
+                    self.delegate?.didAuthenticate(self)
                 }
+                
+            case .failure(let error):
+                print("❌ Ошибка авторизации:", error)
+                // остаёмся на AuthViewController
             }
         }
+    }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         vc.dismiss(animated: true)
     }
-    
-    
 }
 
 extension AuthViewController {
