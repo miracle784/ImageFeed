@@ -28,8 +28,10 @@ extension URLSession {
                     fulfillCompletionOnTheMainThread(.failure(NetworkError.httpStatusCode(statusCode))) // 4
                 }
             } else if let error = error {
+                print("❌ [Network] Ошибка URLSession:", error.localizedDescription)
                 fulfillCompletionOnTheMainThread(.failure(NetworkError.urlRequestError(error))) // 5
             } else {
+                print("❌ [Network] Не удалось получить data/response/error")
                 fulfillCompletionOnTheMainThread(.failure(NetworkError.urlSessionError)) // 6
             }
         })

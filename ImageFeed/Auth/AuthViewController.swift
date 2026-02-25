@@ -18,6 +18,7 @@ final class AuthViewController: UIViewController{
             guard
                 let webViewViewController = segue.destination as? WebViewViewController
             else {
+                print("❌ [AuthViewController] Не удалось привести segue.destination к WebViewViewController")
                 assertionFailure("Failed to prepare for \(showWebViewSegueIdentifier)")
                 return
             }
@@ -28,10 +29,10 @@ final class AuthViewController: UIViewController{
     }
     
     private func configureBackButton() {
-        navigationController?.navigationBar.backIndicatorImage = UIImage(named: "Backward_black")
-        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "Backward_black")
+        navigationController?.navigationBar.backIndicatorImage = UIImage(resource: .backwardBlack)
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(resource: .backwardBlack)
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.backBarButtonItem?.tintColor = UIColor(named: "ypBlack")
+        navigationItem.backBarButtonItem?.tintColor = UIColor(resource: .ypBlack)
     }
 }
 
@@ -41,7 +42,7 @@ extension AuthViewController: WebViewViewControllerDelegate{
         
         
         oauth2Service.fetchOAuthToken(code) { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
             
             switch result {
                 
@@ -53,7 +54,7 @@ extension AuthViewController: WebViewViewControllerDelegate{
                 
             case .failure(let error):
                 print("❌ Ошибка авторизации:", error)
-                // остаёмся на AuthViewController
+                
             }
         }
     }
