@@ -7,33 +7,6 @@ final class OAuth2Service{
     private let decoder = JSONDecoder()
     private init() {}
     
-    private func makeOAuthTokenRequest(code: String) -> URLRequest? {
-        guard let url = URL(string: "https://unsplash.com/oauth/token") else {
-            print("❌ [OAuth] Некорректный URL для получения токена")
-            return nil
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        
-        let parameters = [
-            "client_id": Constants.accessKey,
-            "client_secret": Constants.secretKey,
-            "redirect_uri": Constants.redirectURI,
-            "code": code,
-            "grant_type": "authorization_code"
-        ]
-        
-        let bodyString = parameters
-            .map { "\($0.key)=\($0.value)" }
-            .joined(separator: "&")
-        
-        request.httpBody = bodyString.data(using: .utf8)
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        
-        return request
-    }
-    
     func fetchOAuthToken(
         _ code: String,
         completion: @escaping (Result<String, Error>) -> Void
@@ -73,5 +46,32 @@ final class OAuth2Service{
             }
         }
         task.resume()
+    }
+    
+    private func makeOAuthTokenRequest(code: String) -> URLRequest? {
+        guard let url = URL(string: "https://unsplash.com/oauth/token") else {
+            print("❌ [OAuth] Некорректный URL для получения токена")
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        
+        let parameters = [
+            "client_id": Constants.accessKey,
+            "client_secret": Constants.secretKey,
+            "redirect_uri": Constants.redirectURI,
+            "code": code,
+            "grant_type": "authorization_code"
+        ]
+        
+        let bodyString = parameters
+            .map { "\($0.key)=\($0.value)" }
+            .joined(separator: "&")
+        
+        request.httpBody = bodyString.data(using: .utf8)
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        
+        return request
     }
 }
