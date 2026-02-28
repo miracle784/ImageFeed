@@ -1,51 +1,60 @@
 import Foundation
 
+enum AuthServiceError: Error {
+    case invalidRequest
+}
+
 final class OAuth2Service{
     
     static let shared = OAuth2Service()
     private let tokenStorage = OAuth2TokenStorage.shared
-    private let decoder = JSONDecoder()
-    private init() {}
     
-    func fetchOAuthToken(
-        _ code: String,
-        completion: @escaping (Result<String, Error>) -> Void
+    
+    private var task: URLSessionTask?
+    private var lastCode: String?
+    
+    private init() {}
+
+    func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void
     ) {
-        guard let request = makeOAuthTokenRequest(code: code) else {
-            print("❌ [OAuth] Не удалось создать URLRequest для получения токена")
-            DispatchQueue.main.async {
-                completion(.failure(NetworkError.invalidRequest))
-            }
+        assert(Thread.isMainThread)
+        
+        guard lastCode != code else {
+            completion(.failure(AuthServiceError.invalidRequest))
             return
         }
         
-        let task = URLSession.shared.data(for: request) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
+        task?.cancel()
+        lastCode = code
+        
+        guard let request = makeOAuthTokenRequest(code: code) else {
+            completion(.failure(AuthServiceError.invalidRequest))
+            return
+        }
+        
+        let newTask = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            DispatchQueue.main.async {
+                UIBlockingProgressHUD.dismiss()
+                guard let self else { return }
                 
-            case .success(let data):
-                
-                do {
-                    let response = try self.decoder.decode(OAuthTokenResponseBody.self, from: data)
+                switch result {
                     
+                case .success(let response):
                     let token = response.accessToken
                     self.tokenStorage.token = token
-                    
                     completion(.success(token))
                     
-                } catch {
-                    print("❌ Ошибка декодирования:", error)
-                    print("❌ Полученный JSON:", String(data: data, encoding: .utf8) ?? "nil")
-                    completion(.failure(NetworkError.decodingError(error)))
+                case .failure(let error):
+                    print("[fetchOAuthToken]: Ошибка запроса: \(error.localizedDescription)")
+                    completion(.failure(error))
                 }
                 
-            case .failure(let error):
-                
-                print("❌ Сетевая или HTTP ошибка:", error)
-                completion(.failure(error))
+                self.task = nil
+                self.lastCode = nil
             }
         }
-        task.resume()
+        self.task = newTask
+        newTask.resume()
     }
     
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {

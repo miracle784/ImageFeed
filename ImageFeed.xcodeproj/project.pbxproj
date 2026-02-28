@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		183580B92F503BA6007C60FA /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 183580B82F503BA6007C60FA /* ProgressHUD */; };
+		1854FEE62F5304720055BC6E /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1854FEE52F5304720055BC6E /* Kingfisher */; };
 		18BF366A2F4CF384006D9F0D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18BF36692F4CF384006D9F0D /* WebKit.framework */; };
 /* End PBXBuildFile section */
 
@@ -41,7 +43,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1854FEE62F5304720055BC6E /* Kingfisher in Frameworks */,
 				18BF366A2F4CF384006D9F0D /* WebKit.framework in Frameworks */,
+				183580B92F503BA6007C60FA /* ProgressHUD in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -93,6 +97,8 @@
 			);
 			name = ImageFeed;
 			packageProductDependencies = (
+				183580B82F503BA6007C60FA /* ProgressHUD */,
+				1854FEE52F5304720055BC6E /* Kingfisher */,
 			);
 			productName = ImageFeed;
 			productReference = 18BF521F2F41EF3A00A76BB4 /* ImageFeed.app */;
@@ -122,6 +128,10 @@
 			);
 			mainGroup = 18BF52162F41EF3A00A76BB4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				183580B72F503BA6007C60FA /* XCRemoteSwiftPackageReference "ProgressHUD" */,
+				1854FEE42F5304720055BC6E /* XCRemoteSwiftPackageReference "Kingfisher" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 18BF52202F41EF3A00A76BB4 /* Products */;
 			projectDirPath = "";
@@ -169,7 +179,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -201,7 +211,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -360,6 +370,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		183580B72F503BA6007C60FA /* XCRemoteSwiftPackageReference "ProgressHUD" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/relatedcode/ProgressHUD";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 14.0.0;
+			};
+		};
+		1854FEE42F5304720055BC6E /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		183580B82F503BA6007C60FA /* ProgressHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 183580B72F503BA6007C60FA /* XCRemoteSwiftPackageReference "ProgressHUD" */;
+			productName = ProgressHUD;
+		};
+		1854FEE52F5304720055BC6E /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1854FEE42F5304720055BC6E /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 18BF52172F41EF3A00A76BB4 /* Project object */;
 }

@@ -1,16 +1,18 @@
 import UIKit
 final class SplashViewController: UIViewController{
     private let showAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
-    private let storage = OAuth2TokenStorage()
+    private let storage = OAuth2TokenStorage.shared
+    private let profileService = ProfileService.shared
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if storage.token != nil {
-            switchToTabBarController()
-        } else {
+        guard let token = storage.token else {
             performSegue(withIdentifier: showAuthenticationScreenSegueIdentifier, sender: nil)
+            return
         }
+        
+        fetchProfile(token: token)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -20,6 +22,27 @@ final class SplashViewController: UIViewController{
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
+    }
+    
+    private func fetchProfile(token: String) {
+        UIBlockingProgressHUD.show()
+        
+        profileService.fetchProfile(token) { [weak self] result in
+            DispatchQueue.main.async {
+                UIBlockingProgressHUD.dismiss()
+                
+                guard let self else { return }
+                
+                switch result {
+                case let .success(profile):
+                    ProfileImageService.shared.fetchProfileImageURL(username: profile.username) { _ in }
+                    self.switchToTabBarController()
+                    
+                case let .failure(error):
+                    print("Ошибка загрузки профиля:", error)
+                }
+            }
+        }
     }
     
     private func switchToTabBarController() {
@@ -33,6 +56,7 @@ final class SplashViewController: UIViewController{
         
         window.rootViewController = tabBarController
     }
+    
 }
 
 extension SplashViewController {
@@ -55,6 +79,7 @@ extension SplashViewController {
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
-        switchToTabBarController()
+        guard let token = storage.token else { return }
+            fetchProfile(token: token)
     }
 }
