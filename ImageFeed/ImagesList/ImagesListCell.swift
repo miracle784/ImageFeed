@@ -7,4 +7,11 @@ final class ImagesListCell: UITableViewCell{
     @IBOutlet weak var cellImage: UIImageView!
     
     static let reuseIdentifier = "ImagesListCell"
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        cellImage.kf.cancelDownloadTask()
+        cellImage.image = nil
+    }
 }
