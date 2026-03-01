@@ -1,9 +1,5 @@
 import Foundation
 
-enum AuthServiceError: Error {
-    case invalidRequest
-}
-
 final class OAuth2Service{
     
     static let shared = OAuth2Service()

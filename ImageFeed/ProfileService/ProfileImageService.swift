@@ -1,22 +1,5 @@
 import Foundation
 
-struct ProfileImage: Codable {
-    let small: String
-    let medium: String
-    let large: String
-
-    private enum CodingKeys: String, CodingKey {
-        case small
-        case medium
-        case large
-    }
-}
-
-struct UserResult: Codable {
-    let profileImage: ProfileImage
-
-}
-
 final class ProfileImageService {
     // Синглтон
     static let shared = ProfileImageService()
@@ -32,7 +15,7 @@ final class ProfileImageService {
     // Метод для получения аватарки по имени пользователя
     func fetchProfileImageURL(username: String, completion: @escaping (Result<String, Error>) -> Void) {
        
-        print("🔥 fetchProfileImageURL called")
+        print("fetchProfileImageURL called")
         task?.cancel()
 
         guard let token = OAuth2TokenStorage.shared.token else {

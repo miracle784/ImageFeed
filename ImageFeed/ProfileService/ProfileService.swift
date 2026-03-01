@@ -1,20 +1,5 @@
 import Foundation
 
-struct Profile {
-    let username: String
-    let name: String
-    let loginName: String
-    let bio: String?
-}
-
-struct ProfileResult: Codable {
-    let username: String
-    let firstName: String
-    let lastName: String
-    let bio: String?
-    
-}
-
 final class ProfileService {
     
     static let shared = ProfileService()
@@ -43,7 +28,7 @@ final class ProfileService {
                 
                 let profile = Profile(
                     username: result.username,
-                    name: "\(result.firstName) \(result.lastName)"
+                    name: "\(result.firstName) \(result.lastName ?? "")"
                         .trimmingCharacters(in: .whitespaces),
                     loginName: "@\(result.username)",
                     bio: result.bio
