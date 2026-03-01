@@ -1,4 +1,5 @@
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
@@ -48,6 +49,8 @@ final class ProfileViewController: UIViewController {
         return button
     }()
     
+    private var profileImageServiceObserver: NSObjectProtocol?
+    
     
     // MARK: - Lifecycle
     
@@ -56,6 +59,19 @@ final class ProfileViewController: UIViewController {
         
         setupView()
         setupLayout()
+        if let profile = ProfileService.shared.profile {
+            updateProfileDetails(profile: profile)
+        }
+        profileImageServiceObserver = NotificationCenter.default
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.updateAvatar()
+            }
+        updateAvatar()
     }
     
     
@@ -103,6 +119,63 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let imageUrl = URL(string: profileImageURL)
+        else { return }
+
+        print("imageUrl: \(imageUrl)")
+
+        let placeholderImage = UIImage(systemName: "person.circle.fill")?
+            .withTintColor(.lightGray, renderingMode: .alwaysOriginal)
+        
+        let processor = RoundCornerImageProcessor(cornerRadius: 35) // Радиус для круга
+        imageView.kf.indicatorType = .activity
+        imageView.kf.setImage(
+            with: imageUrl,
+            placeholder: placeholderImage,
+            options: [
+                .processor(processor),
+                .scaleFactor(UIScreen.main.scale), // Учитываем масштаб экрана
+                .cacheOriginalImage, // Кэшируем оригинал
+                .forceRefresh // Игнорируем кэш, чтобы обновить
+            ]) { result in
+
+                switch result {
+                    // Успешная загрузка
+                case .success(let value):
+                    // Картинка
+                    print(value.image)
+
+                    // Откуда картинка загружена:
+                    // - .none — из сети.
+                    // - .memory — из кэша оперативной памяти.
+                    // - .disk — из дискового кэша.
+                    print(value.cacheType)
+
+                    // Информация об источнике.
+                    print(value.source)
+
+                    // В случае ошибки
+                case .failure(let error):
+                    print(error)
+                }
+            }
+        
+    }
+
+    private func updateProfileDetails(profile: Profile) {
+        nameLabel.text = profile.name.isEmpty
+            ? "Имя не указано"
+            : profile.name
+        loginLabel.text = profile.loginName.isEmpty
+            ? "@неизвестный_пользователь"
+            : profile.loginName
+        descriptionLabel.text = (profile.bio?.isEmpty ?? true)
+            ? "Профиль не заполнен"
+            : profile.bio
+    }
     
     // MARK: - Actions
     
