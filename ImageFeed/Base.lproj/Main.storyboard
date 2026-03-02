@@ -51,6 +51,9 @@
                                                     </constraints>
                                                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                     <state key="normal" title="Button" image="Active"/>
+                                                    <connections>
+                                                        <action selector="likeButtonClicked" destination="wRB-qd-6zk" eventType="touchUpInside" id="wsW-Nf-kwT"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                             <color key="backgroundColor" name="ypBlack"/>
@@ -172,8 +175,8 @@
                             <constraint firstAttribute="bottom" secondItem="qEF-e7-chF" secondAttribute="bottom" id="Hsa-Zu-lgz"/>
                             <constraint firstItem="7Ul-OG-7yJ" firstAttribute="bottom" secondItem="n68-JC-1F8" secondAttribute="bottom" constant="17" id="L9O-xG-uYw"/>
                             <constraint firstItem="gnw-iO-f1r" firstAttribute="top" secondItem="7Ul-OG-7yJ" secondAttribute="top" constant="4" id="ixw-WF-TLX"/>
-                            <constraint firstItem="qEF-e7-chF" firstAttribute="leading" secondItem="7Ul-OG-7yJ" secondAttribute="leading" id="r2D-i4-WRq"/>
-                            <constraint firstItem="7Ul-OG-7yJ" firstAttribute="trailing" secondItem="qEF-e7-chF" secondAttribute="trailing" id="rDu-6j-pkR"/>
+                            <constraint firstItem="qEF-e7-chF" firstAttribute="leading" secondItem="4KJ-RR-v9N" secondAttribute="leading" id="r2D-i4-WRq"/>
+                            <constraint firstAttribute="trailing" secondItem="qEF-e7-chF" secondAttribute="trailing" id="rDu-6j-pkR"/>
                             <constraint firstItem="n68-JC-1F8" firstAttribute="centerX" secondItem="7Ul-OG-7yJ" secondAttribute="centerX" id="u3I-Go-T8w"/>
                             <constraint firstItem="qEF-e7-chF" firstAttribute="top" secondItem="4KJ-RR-v9N" secondAttribute="top" id="xJJ-ju-zBh"/>
                         </constraints>

@@ -39,7 +39,7 @@ final class WebViewViewController: UIViewController{
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-      
+        
     }
     
     private func updateProgress() {
@@ -50,7 +50,7 @@ final class WebViewViewController: UIViewController{
     private func loadAuthView() {
         
         guard var urlComponents = URLComponents(string: WebViewConstants.unsplashAuthorizeURLString) else {
-            print("❌ [WebView] Не удалось создать URLComponents для авторизации")
+            print("[WebViewViewController.viewDidLoad]: invalidURLComponents")
             return
         }
         
@@ -62,7 +62,7 @@ final class WebViewViewController: UIViewController{
         ]
         
         guard let url = urlComponents.url else {
-            print("❌ [WebView] Не удалось получить URL из URLComponents")
+            print("[WebViewViewController.viewDidLoad]: invalidURL")
             return
             
         }

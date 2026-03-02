@@ -19,7 +19,8 @@ final class AuthViewController: UIViewController{
             guard
                 let webViewViewController = segue.destination as? WebViewViewController
             else {
-                print("❌ [AuthViewController] Не удалось привести segue.destination к WebViewViewController")
+                
+                print("[AuthViewController.prepare]: typeCastFailure")
                 assertionFailure("Failed to prepare for \(showWebViewSegueIdentifier)")
                 return
             }
@@ -56,7 +57,7 @@ extension AuthViewController: WebViewViewControllerDelegate{
                     self.delegate?.didAuthenticate(self)
                     
                 case .failure(let error):
-                    print("❌ Ошибка авторизации:", error)
+                    print("[AuthViewController.didAuthenticate]: failure error=\(error)")
                     self.showAuthErrorAlert()
                 }
             }

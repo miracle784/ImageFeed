@@ -9,11 +9,9 @@ final class ImagesListViewController: UIViewController {
     // MARK: - Private Properties
     
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
-    
     private var photos: [Photo] = []
     private let imagesListService = ImagesListService.shared
     private var observer: NSObjectProtocol?
-  //  private let photosName: [String] = Array(0..<20).map{ "\($0)" }
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
@@ -35,8 +33,8 @@ final class ImagesListViewController: UIViewController {
         setupNotificationObserver()
         
         if photos.isEmpty {
-                imagesListService.fetchPhotosNextPage()
-            }
+            imagesListService.fetchPhotosNextPage()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -49,38 +47,32 @@ final class ImagesListViewController: UIViewController {
         NotificationCenter.default.removeObserver(observer)
     }
     
-    func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
+    
+    
+    private func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
         let photo = photos[indexPath.row]
         
-        // Дата
+        
         cell.dateLabel.text = photo.createdAt.map {
             dateFormatter.string(from: $0)
         }
         
-        // Лайк
-        let likeImage = photo.isLiked
-            ? UIImage(named: "Active")
-            : UIImage(named: "No Active")
         
-        cell.likeButton.setImage(likeImage, for: .normal)
+        cell.setIsLiked(photo.isLiked)
         
-        // Placeholder
-        let placeholder = UIImage(named: "Stub")
+        guard let url = URL(string: photo.thumbImageURL) else { return }
         
-        // Индикатор
         cell.cellImage.kf.indicatorType = .activity
         
-        // Загрузка thumbnail
-//        cell.cellImage.kf.setImage(
-//            with: URL(string: photo.thumbImageURL),
-//            placeholder: placeholder
-//        ) { [weak self] _ in
-//            guard let self else { return }
-//            tableView.reloadRows(at: [indexPath], with: .automatic)
-//        }
+        let placeholder = UIImage(named: "Stub")
+        
         cell.cellImage.kf.setImage(
-            with: URL(string: photo.thumbImageURL),
-            placeholder: placeholder
+            with: url,
+            placeholder: placeholder,
+            options: [
+                .transition(.fade(0.2)),
+                .cacheOriginalImage
+            ]
         )
     }
     
@@ -96,37 +88,51 @@ final class ImagesListViewController: UIViewController {
             
             let photo = photos[indexPath.row]
             viewController.imageURL = URL(string: photo.largeImageURL)
-            
         } else {
             super.prepare(for: segue, sender: sender)
         }
     }
     
     private func setupNotificationObserver() {
-                observer = NotificationCenter.default.addObserver(
-                    forName: ImagesListService.didChangeNotification,
-                    object: nil,
-                    queue: .main
-                ) { [weak self] _ in
-                    self?.updateTableViewAnimated()
-                }
-            }
+        observer = NotificationCenter.default.addObserver(
+            forName: ImagesListService.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updateTableViewAnimated()
+        }
+    }
     
     private func updateTableViewAnimated() {
         let oldCount = photos.count
-        let newCount = imagesListService.photos.count
-        
-        guard newCount > oldCount else { return }
-        
         photos = imagesListService.photos
+        let newCount = photos.count
         
-        let indexPaths = (oldCount..<newCount).map {
-            IndexPath(row: $0, section: 0)
+        if newCount > oldCount {
+            let indexPaths = (oldCount..<newCount).map {
+                IndexPath(row: $0, section: 0)
+            }
+            
+            tableView.performBatchUpdates {
+                tableView.insertRows(at: indexPaths, with: .automatic)
+            }
         }
+        //        else {
+        //                tableView.reloadData()
+        //        }
+    }
+    
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: "Ошибка",
+            message: "Не удалось выполнить действие. Попробуйте ещё раз.",
+            preferredStyle: .alert
+        )
         
-        tableView.performBatchUpdates {
-            tableView.insertRows(at: indexPaths, with: .automatic)
-        }
+        let action = UIAlertAction(title: "ОК", style: .default)
+        alert.addAction(action)
+        
+        present(alert, animated: true)
     }
 }
 
@@ -139,20 +145,20 @@ extension ImagesListViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-               guard photos.indices.contains(indexPath.row) else { return 0 }
-               let photo = photos[indexPath.row]
-               
-               let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
-               let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
-               
-               let imageWidth = photo.size.width
-               let imageHeight = photo.size.height
-               
-               guard imageWidth > 0 else { return 0 }
-               
-               let scale = imageViewWidth / imageWidth
-               return imageHeight * scale + imageInsets.top + imageInsets.bottom
-           }
+        guard photos.indices.contains(indexPath.row) else { return 0 }
+        let photo = photos[indexPath.row]
+        
+        let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
+        let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
+        
+        let imageWidth = photo.size.width
+        let imageHeight = photo.size.height
+        
+        guard imageWidth > 0 else { return 0 }
+        
+        let scale = imageViewWidth / imageWidth
+        return imageHeight * scale + imageInsets.top + imageInsets.bottom
+    }
     
     func tableView(_ tableView: UITableView,
                    willDisplay cell: UITableViewCell,
@@ -168,11 +174,12 @@ extension ImagesListViewController: UITableViewDelegate {
 
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-       // photosName.count
         photos.count
     }
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        
         
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: ImagesListCell.reuseIdentifier,
@@ -180,9 +187,47 @@ extension ImagesListViewController: UITableViewDataSource {
         ) as? ImagesListCell else {
             return UITableViewCell()
         }
+        cell.delegate = self
         
         configCell(for: cell, with: indexPath)
         
         return cell
+    }
+}
+
+extension ImagesListViewController: ImagesListCellDelegate {
+    
+    func imageListCellDidTapLike(_ cell: ImagesListCell) {
+        
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        let photo = photos[indexPath.row]
+        
+        
+        UIBlockingProgressHUD.show()
+        
+        imagesListService.changeLike(
+            photoId: photo.id,
+            isLike: !photo.isLiked
+        ) { [weak self] result in
+            
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                
+                switch result {
+                case .success:
+                    
+                    self.photos = self.imagesListService.photos
+                    
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                    
+                case .failure:
+                    self.showErrorAlert()
+                }
+                
+                // Разблокируем UI в любом случае
+                UIBlockingProgressHUD.dismiss()
+            }
+        }
     }
 }
