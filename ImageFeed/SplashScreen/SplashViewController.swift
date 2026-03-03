@@ -18,6 +18,7 @@ final class SplashViewController: UIViewController{
     
     override func viewDidLoad() {
         super.viewDidLoad()
+       
         setupView()
         setupLayout()
     }
@@ -72,7 +73,7 @@ final class SplashViewController: UIViewController{
                     self.switchToTabBarController()
                     
                 case let .failure(error):
-                    print("Ошибка загрузки профиля:", error)
+                    print("[SplashViewController.fetchProfile]: requestFailure error=\(error)")
                 }
             }
         }

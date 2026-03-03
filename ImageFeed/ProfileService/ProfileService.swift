@@ -38,7 +38,7 @@ final class ProfileService {
                 completion(.success(profile))
                 
             case .failure(let error):
-                print("[fetchProfile]: Ошибка запроса: \(error.localizedDescription)")
+                print("[ProfileService.fetchProfile]: requestFailure error=\(error)")
                 completion(.failure(error))
             }
             
@@ -58,5 +58,9 @@ final class ProfileService {
         request.httpMethod = "GET"
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
+    }
+    
+    func resetProfile() {
+        profile = nil
     }
 }

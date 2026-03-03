@@ -10,7 +10,7 @@ final class OAuth2Service{
     private var lastCode: String?
     
     private init() {}
-
+    
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void
     ) {
         assert(Thread.isMainThread)
@@ -41,7 +41,8 @@ final class OAuth2Service{
                     completion(.success(token))
                     
                 case .failure(let error):
-                    print("[fetchOAuthToken]: Ошибка запроса: \(error.localizedDescription)")
+                    
+                    print("[OAuth2Service.fetchOAuthToken]: requestFailure error=\(error)")
                     completion(.failure(error))
                 }
                 
@@ -55,7 +56,8 @@ final class OAuth2Service{
     
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard let url = URL(string: "https://unsplash.com/oauth/token") else {
-            print("❌ [OAuth] Некорректный URL для получения токена")
+            
+            print("[OAuth2Service.fetchOAuthToken]: invalidURL")
             return nil
         }
         

@@ -43,7 +43,7 @@ final class ProfileImageService {
                     )
 
             case .failure(let error):
-                print("[fetchProfileImageURL]: Ошибка запроса: \(error.localizedDescription)")
+                print("[ProfileImageService.fetchProfileImageURL]: requestFailure error=\(error)")
                 completion(.failure(error)) // Прокидываем ошибку
             }
         }
@@ -61,5 +61,9 @@ final class ProfileImageService {
         request.httpMethod = "GET"
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
+    }
+    
+    func resetAvatar() {
+        avatarURL = nil
     }
 }
