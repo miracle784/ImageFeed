@@ -23,20 +23,10 @@ final class ImagesListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print(tableView as Any)
-        print("photos count:", photos.count)
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
-        
-        photos = imagesListService.photos
-        setupNotificationObserver()
-        
-        if photos.isEmpty {
-            imagesListService.fetchPhotosNextPage()
-        }
+        setupUI()
+        bindService()
+        loadInitialData()
     }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("viewWillAppear photos:", photos.count)
@@ -47,8 +37,23 @@ final class ImagesListViewController: UIViewController {
         NotificationCenter.default.removeObserver(observer)
     }
     
-    
-    
+    private func setupUI() {
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
+    }
+
+    private func bindService() {
+        photos = imagesListService.photos
+        setupNotificationObserver()
+    }
+
+    private func loadInitialData() {
+        if photos.isEmpty {
+            imagesListService.fetchPhotosNextPage()
+        }
+    }
+
     private func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
         let photo = photos[indexPath.row]
         
@@ -117,9 +122,6 @@ final class ImagesListViewController: UIViewController {
                 tableView.insertRows(at: indexPaths, with: .automatic)
             }
         }
-        //        else {
-        //                tableView.reloadData()
-        //        }
     }
     
     private func showErrorAlert() {

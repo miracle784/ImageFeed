@@ -8,7 +8,6 @@ final class ProfileViewController: UIViewController {
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(resource: .avatar)
-      //  imageView.contentMode = .scaleAspectFit
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView

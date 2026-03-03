@@ -100,7 +100,6 @@ final class SingleImageViewController: UIViewController {
         
         let hScale = visibleSize.width / imageSize.width
         let vScale = visibleSize.height / imageSize.height
-        // let scale = min(hScale, vScale)
         let scale = max(hScale, vScale)
         scrollView.minimumZoomScale = scale
         scrollView.setZoomScale(scale, animated: false)

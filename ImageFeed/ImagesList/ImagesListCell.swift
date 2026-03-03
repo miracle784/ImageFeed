@@ -4,9 +4,9 @@ final class ImagesListCell: UITableViewCell {
     
     // MARK: - IB Outlets
     
-    @IBOutlet weak var likeButton: UIButton!
-    @IBOutlet weak var dateLabel: UILabel!
-    @IBOutlet weak var cellImage: UIImageView!
+    @IBOutlet private weak var likeButton: UIButton!
+    @IBOutlet private weak var dateLabel: UILabel!
+    @IBOutlet private weak var cellImage: UIImageView!
     
     static let reuseIdentifier = "ImagesListCell"
     
@@ -20,10 +20,13 @@ final class ImagesListCell: UITableViewCell {
     }
     
     // MARK: - Configuration
+    private enum Assets {
+        static let liked = UIImage(resource: .likeActive)
+        static let notLiked = UIImage(resource: .likeInactive)
+    }
     
     func setIsLiked(_ isLiked: Bool) {
-        let imageName = isLiked ? "Active" : "No Active"
-        likeButton.setImage(UIImage(named: imageName), for: .normal)
+        likeButton.setImage(isLiked ? Assets.liked : Assets.notLiked, for: .normal)
     }
     
     // MARK: - Reuse
