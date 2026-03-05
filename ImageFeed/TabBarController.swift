@@ -14,9 +14,20 @@ final class TabBarController: UITabBarController {
     private func setupTabs() {
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
 
-        let imagesListVC = storyboard
-            .instantiateViewController(withIdentifier: "ImagesListViewController")
+        guard let imagesListVC = storyboard
+            .instantiateViewController(
+                withIdentifier: "ImagesListViewController"
+            ) as? ImagesListViewController else {
+            assertionFailure("Failed to instantiate ImagesListViewController")
+            return
+        }
+        
+        let service = ImagesListService.shared
+        let presenter = ImagesListPresenter(service: service)
 
+        imagesListVC.presenter = presenter
+        presenter.view = imagesListVC
+        
         imagesListVC.tabBarItem = UITabBarItem(
             title: "",
             image: UIImage(named: "tab_editorial_active"),
@@ -24,6 +35,8 @@ final class TabBarController: UITabBarController {
         )
 
         let profileVC = ProfileViewController()
+        let profilePresenter = ProfilePresenter()
+        profileVC.configure(profilePresenter)
         profileVC.tabBarItem = UITabBarItem(
             title: "",
             image: UIImage(named: "tab_profile_active"),

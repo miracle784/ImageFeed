@@ -1,7 +1,12 @@
 import UIKit
 import Kingfisher
 
-final class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController, ProfileViewProtocol {
+    private var presenter: ProfilePresenterProtocol! 
+    func configure(_ presenter: ProfilePresenterProtocol) {
+        self.presenter = presenter
+        presenter.view = self
+    }
     
     // MARK: - UI Elements
     
@@ -49,7 +54,7 @@ final class ProfileViewController: UIViewController {
         return button
     }()
     
-    private var profileImageServiceObserver: NSObjectProtocol?
+ 
   
     private var skeletonLayers: [CAGradientLayer] = []
     
@@ -57,47 +62,12 @@ final class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setupView()
         setupLayout()
-        
         showSkeleton()
-        
-        guard let token = OAuth2TokenStorage.shared.token else {
-            return
-        }
-
-        ProfileService.shared.fetchProfile(token) { [weak self] result in
-            guard let self = self else { return }
-            
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let profile):
-                    
-                    
-                    self.updateProfileDetails(profile: profile)
-                    
-                   
-                    ProfileImageService.shared.fetchProfileImageURL(
-                        username: profile.username
-                    ) { _ in }
-                    
-                case .failure(let error):
-                    print(error)
-                }
-            }
-        }
-        
-
-     
-        profileImageServiceObserver = NotificationCenter.default
-            .addObserver(
-                forName: ProfileImageService.didChangeNotification,
-                object: nil,
-                queue: .main
-            ) { [weak self] _ in
-                self?.updateAvatar()
-            }
+        setupAccessibilityIdentifiers()
+        presenter?.viewDidLoad()
+ 
     }
     
     override func viewDidLayoutSubviews() {
@@ -106,6 +76,11 @@ final class ProfileViewController: UIViewController {
         skeletonLayers.forEach { layer in
             layer.frame = layer.superlayer?.bounds ?? .zero
         }
+    }
+    private func setupAccessibilityIdentifiers() {
+        nameLabel.accessibilityIdentifier = "Name Lastname"
+        loginLabel.accessibilityIdentifier = "username"
+        backButton.accessibilityIdentifier = "logout button"
     }
     
     private func showSkeleton() {
@@ -127,7 +102,7 @@ final class ProfileViewController: UIViewController {
         descriptionLabel.layer.addSublayer(bioSkeleton)
         skeletonLayers.append(bioSkeleton)
     }
-    
+   
     private func hideSkeleton() {
         skeletonLayers.forEach { $0.removeFromSuperlayer() }
         skeletonLayers.removeAll()
@@ -165,7 +140,7 @@ final class ProfileViewController: UIViewController {
         
         return gradient
     }
-    
+   
     private func setupLayout() {
         view.addSubview(imageView)
         view.addSubview(nameLabel)
@@ -203,66 +178,37 @@ final class ProfileViewController: UIViewController {
             backButton.centerYAnchor.constraint(equalTo: imageView.centerYAnchor)
         ])
     }
-    
-    private func updateAvatar() {
-        guard
-            let profileImageURL = ProfileImageService.shared.avatarURL,
-            let imageUrl = URL(string: profileImageURL)
-        else {
+
+    func displayAvatar(url: URL?) {
+        guard let url else {
             hideSkeleton()
             return
         }
         
-        print("imageUrl: \(imageUrl)")
+        let processor = RoundCornerImageProcessor(cornerRadius: 35)
         
-        let placeholderImage = UIImage(systemName: "person.circle.fill")?
-            .withTintColor(.lightGray, renderingMode: .alwaysOriginal)
-        
-        let processor = RoundCornerImageProcessor(cornerRadius: 35) // Радиус для круга
-        imageView.kf.indicatorType = .activity
         imageView.kf.setImage(
-            with: imageUrl,
-            placeholder: placeholderImage,
-            options: [
-                .processor(processor),
-                .scaleFactor(UIScreen.main.scale), // Учитываем масштаб экрана
-                .cacheOriginalImage, // Кэшируем оригинал
-                .forceRefresh // Игнорируем кэш, чтобы обновить
-            ]) { [weak self] result in
-                self?.hideSkeleton()
-                switch result {
-                    // Успешная загрузка
-                case .success(let value):
-                    // Картинка
-                    print(value.image)
-                    
-                    // Откуда картинка загружена:
-                    // - .none — из сети.
-                    // - .memory — из кэша оперативной памяти.
-                    // - .disk — из дискового кэша.
-                    print(value.cacheType)
-                    
-                    // Информация об источнике.
-                    print(value.source)
-                    
-                    // В случае ошибки
-                case .failure(let error):
-                    print(error)
-                }
-            }
-        
+            with: url,
+            options: [.processor(processor)]
+        ) { [weak self] _ in
+            self?.hideSkeleton()
+        }
     }
-    
-    private func updateProfileDetails(profile: Profile) {
+
+    func updateProfileDetails(profile: Profile) {
         nameLabel.text = profile.name.isEmpty
-        ? "Имя не указано"
-        : profile.name
+            ? "Имя не указано"
+            : profile.name
+        
         loginLabel.text = profile.loginName.isEmpty
-        ? "@неизвестный_пользователь"
-        : profile.loginName
+            ? "@неизвестный_пользователь"
+            : profile.loginName
+        
         descriptionLabel.text = (profile.bio?.isEmpty ?? true)
-        ? "Профиль не заполнен"
-        : profile.bio
+            ? "Профиль не заполнен"
+            : profile.bio
+        
+        hideSkeleton()
     }
     
     
@@ -271,10 +217,10 @@ final class ProfileViewController: UIViewController {
     @objc
     private func didTapBackButton() {
         print("Logout tapped")
-        showLogoutAlert()
+        presenter.didTapLogout()
     }
     
-    private func showLogoutAlert() {
+     func showLogoutConfirmation() {
         let alert = UIAlertController(
             title: "Пока, пока!",
             message: "Уверены, что хотите выйти?",
@@ -282,12 +228,12 @@ final class ProfileViewController: UIViewController {
         )
 
 
-        let logoutAction = UIAlertAction(title: "Да", style: .default) { _ in
-            ProfileLogoutService.shared.logout()
-        }
+         let logoutAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+                 self?.presenter.confirmLogout()
+             }
         
         let cancelAction = UIAlertAction(title: "Нет", style: .cancel)
-
+      
         alert.addAction(logoutAction)
         alert.addAction(cancelAction)
 

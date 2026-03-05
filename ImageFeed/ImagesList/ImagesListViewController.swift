@@ -2,6 +2,10 @@ import UIKit
 
 final class ImagesListViewController: UIViewController {
     
+    // MARK: - Public
+        
+        var presenter: ImagesListPresenterProtocol!
+    
     // MARK: - IB Outlets
     
     @IBOutlet private var tableView: UITableView!
@@ -9,9 +13,6 @@ final class ImagesListViewController: UIViewController {
     // MARK: - Private Properties
     
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
-    private var photos: [Photo] = []
-    private let imagesListService = ImagesListService.shared
-    private var observer: NSObjectProtocol?
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
@@ -24,39 +25,17 @@ final class ImagesListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        bindService()
-        loadInitialData()
+        presenter.viewDidLoad()
     }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        print("viewWillAppear photos:", photos.count)
-    }
-    
-    deinit {
-        guard let observer else { return }
-        NotificationCenter.default.removeObserver(observer)
-    }
-    
+
     private func setupUI() {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
     }
 
-    private func bindService() {
-        photos = imagesListService.photos
-        setupNotificationObserver()
-    }
-
-    private func loadInitialData() {
-        if photos.isEmpty {
-            imagesListService.fetchPhotosNextPage()
-        }
-    }
-
     private func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
-        let photo = photos[indexPath.row]
-        
+        let photo = presenter.photo(at: indexPath.row)
         
         cell.dateLabel.text = photo.createdAt.map {
             dateFormatter.string(from: $0)
@@ -91,51 +70,14 @@ final class ImagesListViewController: UIViewController {
                 return
             }
             
-            let photo = photos[indexPath.row]
+            //let photo = photos[indexPath.row]
+            let photo = presenter.photo(at: indexPath.row)
             viewController.imageURL = URL(string: photo.largeImageURL)
         } else {
             super.prepare(for: segue, sender: sender)
         }
     }
-    
-    private func setupNotificationObserver() {
-        observer = NotificationCenter.default.addObserver(
-            forName: ImagesListService.didChangeNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            self?.updateTableViewAnimated()
-        }
-    }
-    
-    private func updateTableViewAnimated() {
-        let oldCount = photos.count
-        photos = imagesListService.photos
-        let newCount = photos.count
-        
-        if newCount > oldCount {
-            let indexPaths = (oldCount..<newCount).map {
-                IndexPath(row: $0, section: 0)
-            }
-            
-            tableView.performBatchUpdates {
-                tableView.insertRows(at: indexPaths, with: .automatic)
-            }
-        }
-    }
-    
-    private func showErrorAlert() {
-        let alert = UIAlertController(
-            title: "Ошибка",
-            message: "Не удалось выполнить действие. Попробуйте ещё раз.",
-            preferredStyle: .alert
-        )
-        
-        let action = UIAlertAction(title: "ОК", style: .default)
-        alert.addAction(action)
-        
-        present(alert, animated: true)
-    }
+
 }
 
 // MARK: - UITableViewDelegate
@@ -147,8 +89,9 @@ extension ImagesListViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard photos.indices.contains(indexPath.row) else { return 0 }
-        let photo = photos[indexPath.row]
+        guard indexPath.row < presenter.photosCount else { return 0 }
+
+        let photo = presenter.photo(at: indexPath.row)
         
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
@@ -165,10 +108,8 @@ extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView,
                    willDisplay cell: UITableViewCell,
                    forRowAt indexPath: IndexPath) {
-        
-        if indexPath.row == photos.count - 1 {
-            imagesListService.fetchPhotosNextPage()
-        }
+
+        presenter.willDisplayCell(at: indexPath.row)
     }
 }
 
@@ -176,7 +117,7 @@ extension ImagesListViewController: UITableViewDelegate {
 
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        photos.count
+        presenter.photosCount
     }
     func tableView(_ tableView: UITableView,
                    cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -200,36 +141,41 @@ extension ImagesListViewController: UITableViewDataSource {
 extension ImagesListViewController: ImagesListCellDelegate {
     
     func imageListCellDidTapLike(_ cell: ImagesListCell) {
-        
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-        let photo = photos[indexPath.row]
-        
         
         UIBlockingProgressHUD.show()
         
-        imagesListService.changeLike(
-            photoId: photo.id,
-            isLike: !photo.isLiked
-        ) { [weak self] result in
-            
-            guard let self = self else { return }
-            
-            DispatchQueue.main.async {
-                
-                switch result {
-                case .success:
-                    
-                    self.photos = self.imagesListService.photos
-                    
-                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
-                    
-                case .failure:
-                    self.showErrorAlert()
-                }
-                
-                // Разблокируем UI в любом случае
-                UIBlockingProgressHUD.dismiss()
-            }
+        presenter.didTapLike(at: indexPath.row)
+    }
+}
+
+// MARK: - ImagesListViewProtocol
+
+extension ImagesListViewController: ImagesListViewProtocol {
+    
+    
+    func insertRows(at indexPaths: [IndexPath]) {
+        tableView.performBatchUpdates {
+            tableView.insertRows(at: indexPaths, with: .automatic)
         }
+    }
+    
+    func reloadRow(at index: Int) {
+        let indexPath = IndexPath(row: index, section: 0)
+        tableView.reloadRows(at: [indexPath], with: .automatic)
+        UIBlockingProgressHUD.dismiss()
+    }
+    
+    func showError(message: String) {
+        UIBlockingProgressHUD.dismiss()
+        
+        let alert = UIAlertController(
+            title: "Ошибка",
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "ОК", style: .default))
+        present(alert, animated: true)
     }
 }

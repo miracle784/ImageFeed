@@ -4,9 +4,9 @@ final class ImagesListCell: UITableViewCell {
     
     // MARK: - IB Outlets
     
-    @IBOutlet private weak var likeButton: UIButton!
-    @IBOutlet private weak var dateLabel: UILabel!
-    @IBOutlet private weak var cellImage: UIImageView!
+    @IBOutlet weak var likeButton: UIButton!
+    @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var cellImage: UIImageView!
     
     static let reuseIdentifier = "ImagesListCell"
     
@@ -27,6 +27,9 @@ final class ImagesListCell: UITableViewCell {
     
     func setIsLiked(_ isLiked: Bool) {
         likeButton.setImage(isLiked ? Assets.liked : Assets.notLiked, for: .normal)
+        likeButton.accessibilityIdentifier = isLiked
+                ? "like button on"
+                : "like button off"
     }
     
     // MARK: - Reuse
