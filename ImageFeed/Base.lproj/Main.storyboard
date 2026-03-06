@@ -45,6 +45,7 @@
                                                 </label>
                                                 <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bak-8c-oO9" userLabel="Like Button">
                                                     <rect key="frame" x="333" y="5" width="44" height="44"/>
+                                                    <accessibility key="accessibilityConfiguration" identifier="likeButton"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="44" id="4e0-jG-GWj"/>
                                                         <constraint firstAttribute="height" constant="44" id="V3S-z2-TKM"/>
