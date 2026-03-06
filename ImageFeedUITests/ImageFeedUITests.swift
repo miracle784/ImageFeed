@@ -70,23 +70,24 @@ final class ImageFeedUITests: XCTestCase {
         XCTAssertTrue(tablesQuery.waitForExistence(timeout: 10))
         
         let firstCell = tablesQuery.cells.element(boundBy: 0)
-        
         XCTAssertTrue(firstCell.waitForExistence(timeout: 10))
+        
+        tablesQuery.swipeUp()
+        sleep(2)
         
         let cellToLike = tablesQuery.cells.element(boundBy: 1)
         XCTAssertTrue(cellToLike.waitForExistence(timeout: 5))
-        while !cellToLike.isHittable {
-            tablesQuery.swipeUp()
-        }
+        
         
         let likeButton = cellToLike.buttons["likeButton"]
         XCTAssertTrue(likeButton.waitForExistence(timeout: 5))
         
         likeButton.tap()
+        sleep(3)
         likeButton.tap()
-        
+        sleep(3)
         cellToLike.tap()
-        
+        sleep(2)
         let image = app.scrollViews.images.firstMatch
         XCTAssertTrue(image.waitForExistence(timeout: 5))
         
