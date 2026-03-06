@@ -61,6 +61,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     }
 }
 
+// MARK: - ImagesListServiceDelegate
 extension ImagesListPresenter: ImagesListServiceDelegate {
     
     func imagesListServiceDidUpdatePhotos(

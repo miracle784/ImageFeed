@@ -1,4 +1,5 @@
 import Foundation
+
 protocol ImagesListServiceDelegate: AnyObject {
     func imagesListServiceDidUpdatePhotos(
         _ service: ImagesListServiceProtocol

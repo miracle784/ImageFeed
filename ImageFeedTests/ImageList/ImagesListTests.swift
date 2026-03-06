@@ -1,34 +1,33 @@
 @testable import ImageFeed
 import XCTest
 final class ImagesListTests: XCTestCase {
+    
+    private var viewController: ImagesListViewController!
+        private var presenter: ImagesListPresenterSpy!
+
+        override func setUp() {
+            super.setUp()
+
+            viewController = ImagesListViewController()
+            presenter = ImagesListPresenterSpy()
+
+            viewController.presenter = presenter
+            presenter.view = viewController
+
+            viewController.setValue(UITableView(), forKey: "tableView")
+            _ = viewController.view
+        }
+    
     func testPresenterCallsViewDidLoad() {
-        let viewController = ImagesListViewController()
-        let presenter = ImagesListPresenterSpy()
-        
-        viewController.presenter = presenter
-        presenter.view = viewController
-        
-        viewController.setValue(UITableView(), forKey: "tableView")
-        
-        _ = viewController.view
-        
+        setUp()
         XCTAssertTrue(presenter.viewDidLoadCalled)
     }
     
     func testPresenterCallsWillDisplayRow() {
-        let viewController = ImagesListViewController()
-        let presenter = ImagesListPresenterSpy()
-
-        viewController.presenter = presenter
-        presenter.view = viewController
 
         let tableView = UITableView()
-        viewController.setValue(tableView, forKey: "tableView")
-
-        _ = viewController.view
-
+        setUp()
         let indexPath = IndexPath(row: 5, section: 0)
-
         viewController.tableView(
             tableView,
             willDisplay: UITableViewCell(),
@@ -39,19 +38,11 @@ final class ImagesListTests: XCTestCase {
     }
     
     func testLikeButtonCallsPresenter() {
-        let viewController = ImagesListViewController()
-        let presenter = ImagesListPresenterSpy()
-
-        viewController.presenter = presenter
-        presenter.view = viewController
 
         let tableView = TableViewIndexPathSpy()
         tableView.stubIndexPath = IndexPath(row: 3, section: 0)
-
-        viewController.setValue(tableView, forKey: "tableView")
-
-        _ = viewController.view
-
+        
+        setUp()
         let cell = ImagesListCell()
 
         viewController.imageListCellDidTapLike(cell)

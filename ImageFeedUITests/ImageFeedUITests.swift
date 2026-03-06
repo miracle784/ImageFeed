@@ -17,8 +17,8 @@ final class ImageFeedUITests: XCTestCase {
         }
     }
     
-    let login = ""
-    let password = ""
+    let login = "l0bastoff.ilya@yandex.ru"
+    let password = "qwertyuiop1"
     
     func testAuth() throws {
         app.launchArguments = ["Reset"]
@@ -65,7 +65,7 @@ final class ImageFeedUITests: XCTestCase {
     }
     
     func testFeed() throws {
-        
+ 
         let tablesQuery = app.tables.firstMatch
         XCTAssertTrue(tablesQuery.waitForExistence(timeout: 10))
         

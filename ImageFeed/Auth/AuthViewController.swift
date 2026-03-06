@@ -6,9 +6,12 @@ protocol AuthViewControllerDelegate: AnyObject {
 }
 
 final class AuthViewController: UIViewController{
+    
     private let showWebViewSegueIdentifier = "ShowWebView"
     private let oauth2Service = OAuth2Service.shared
     weak var delegate: AuthViewControllerDelegate?
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         configureBackButton()
@@ -16,22 +19,27 @@ final class AuthViewController: UIViewController{
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showWebViewSegueIdentifier {
-            guard
-                let webViewViewController = segue.destination as? WebViewViewController
-            else {
-                
-                print("[AuthViewController.prepare]: typeCastFailure")
-                assertionFailure("Failed to prepare for \(showWebViewSegueIdentifier)")
-                return
-            }
-            let authHelper = AuthHelper()
-            let webViewPresenter = WebViewPresenter(authHelper: authHelper)
-            webViewViewController.presenter = webViewPresenter
-            webViewPresenter.view = webViewViewController
-            webViewViewController.delegate = self
+            configureWebViewController(for: segue)
         } else {
             super.prepare(for: segue, sender: sender)
         }
+    }
+    
+    // MARK: - Private
+    
+    private func configureWebViewController(for segue: UIStoryboardSegue) {
+        guard let webViewViewController = segue.destination as? WebViewViewController else {
+            print("[AuthViewController.prepare]: typeCastFailure")
+            assertionFailure("Failed to prepare for \(showWebViewSegueIdentifier)")
+            return
+        }
+        
+        let authHelper = AuthHelper()
+        let webViewPresenter = WebViewPresenter(authHelper: authHelper)
+        
+        webViewViewController.presenter = webViewPresenter
+        webViewPresenter.view = webViewViewController
+        webViewViewController.delegate = self
     }
     
     private func configureBackButton() {
