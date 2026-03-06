@@ -14,13 +14,14 @@ extension PhotoResult {
     }
 }
 
-final class ImagesListService {
+final class ImagesListService: ImagesListServiceProtocol {
     
+    weak var delegate: ImagesListServiceDelegate?
     static let shared = ImagesListService()
     static let didChangeNotification = Notification.Name("ImagesListServiceDidChange")
     
     private(set) var photos: [Photo] = []
-    
+    private var isLoading = false
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
     private var likeTask: URLSessionTask?
@@ -32,6 +33,9 @@ final class ImagesListService {
     func fetchPhotosNextPage() {
         
         if task != nil { return }
+        
+        guard !isLoading else { return }
+        isLoading = true
         
         let nextPage = (lastLoadedPage ?? 0) + 1
         
@@ -50,10 +54,10 @@ final class ImagesListService {
                 self.photos.append(contentsOf: newPhotos)
                 self.lastLoadedPage = nextPage
                 
-                NotificationCenter.default.post(
-                    name: ImagesListService.didChangeNotification,
-                    object: self
-                )
+                self.isLoading = false
+                
+                self.delegate?.imagesListServiceDidUpdatePhotos(self)
+                
                 
             case .failure(let error):
                 print("[ImagesListService.fetchPhotosNextPage]: Network error page=\(nextPage) error=\(error)")
@@ -86,7 +90,7 @@ final class ImagesListService {
     func changeLike(
         photoId: String,
         isLike: Bool,
-        _ completion: @escaping (Result<Void, Error>) -> Void
+        completion: @escaping (Result<Void, Error>) -> Void
     ) {
         likeTask?.cancel()
         
@@ -125,13 +129,13 @@ final class ImagesListService {
                     )
                     
                     self.photos[index] = newPhoto
+                    
+                    self.delegate?.imagesListServiceDidUpdatePhoto(
+                        self,
+                        at: index
+                    )
                 }
-                
-                NotificationCenter.default.post(
-                    name: ImagesListService.didChangeNotification,
-                    object: self
-                )
-                
+           
                 completion(.success(()))
                 
             case .failure(let error):

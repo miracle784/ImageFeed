@@ -1,6 +1,6 @@
 import Foundation
 
-final class ProfileService {
+final class ProfileService: ProfileServiceProtocol {
     
     static let shared = ProfileService()
     private let urlSession = URLSession.shared

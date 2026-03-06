@@ -1,0 +1,3 @@
+protocol ProfileLogoutServiceProtocol {
+    func logout()
+}
